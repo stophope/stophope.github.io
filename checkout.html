@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算 - 水果购物网站</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        .checkout-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .order-summary {
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .order-summary h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .payment-methods {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        .payment-method {
+            text-align: center;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .payment-method:hover {
+            background-color: #f0f0f0;
+        }
+        .payment-method.selected {
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+        .payment-method img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background-color: transparent;
+            padding: 0;
+        }
+        .payment-method p {
+            margin: 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 30px auto 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 30px;
+            border: none;
+            width: 350px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        #payment-password {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        #payment-password:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .modal-buttons button {
+            width: 48%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .modal-buttons button:first-child {
+            background-color: #3498db;
+            color: white;
+        }
+        .modal-buttons button:last-child {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .modal-buttons button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>结算</h1>
+    <div class="checkout-container">
+        <div class="order-summary">
+            <h2>订单摘要</h2>
+            <div id="order-items"></div>
+            <p>总计: ¥<span id="order-total"></span></p>
+        </div>
+        <h2>选择支付方式</h2>
+        <div class="payment-methods">
+            <div class="payment-method" onclick="selectPayment('alipay')">
+                <img src="https://pic.rmb.bdstatic.com/cms/f2bd7dd9db0285fcb407408443ddda87_1686187779.193_825.png" alt="支付宝">
+                <p>支付宝</p>
+            </div>
+            <div class="payment-method" onclick="selectPayment('wechat')">
+                <img src="https://res.wx.qq.com/a/wx_fed/assets/res/OTE0YTAw.png" alt="微信支付">
+                <p>微信支付</p>
+            </div>
+        </div>
+        <button onclick="showPasswordPrompt()">确认支付</button>
+    </div>
+
+    <!-- 添加密码输入弹窗 -->
+    <div id="password-modal" class="modal">
+        <div class="modal-content">
+            <h3>请输入支付密码</h3>
+            <input type="password" id="payment-password" placeholder="请输入6位数字密码" maxlength="6">
+            <div class="modal-buttons">
+                <button onclick="confirmPayment()">确认支付</button>
+                <button onclick="closePasswordPrompt()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+        let total = parseFloat(localStorage.getItem('total') || '0');
+        let selectedPayment = '';
+
+        function displayOrderSummary() {
+            let orderItems = document.getElementById('order-items');
+            orderItems.innerHTML = '';
+            for (let fruit in cart) {
+                orderItems.innerHTML += `<p>${fruit}: ${cart[fruit].quantity} x ¥${cart[fruit].price.toFixed(2)}</p>`;
+            }
+            document.getElementById('order-total').textContent = total.toFixed(2);
+        }
+
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function showPasswordPrompt() {
+            if (!selectedPayment) {
+                alert('请选择支付方式');
+                return;
+            }
+            document.getElementById('password-modal').style.display = 'block';
+        }
+
+        function closePasswordPrompt() {
+            document.getElementById('password-modal').style.display = 'none';
+        }
+
+        function confirmPayment() {
+            const password = document.getElementById('payment-password').value;
+            if (password.length !== 6 || isNaN(password)) {
+                alert('请输入6位数字密码');
+                return;
+            }
+            // 这里应该是实际的支付处理逻辑
+            alert(`使用${selectedPayment === 'alipay' ? '支付宝' : '微信支付'}支付¥${total.toFixed(2)}。谢谢您的购买！`);
+            // 清空购物车和总金额
+            localStorage.removeItem('cart');
+            localStorage.removeItem('total');
+            // 跳转回主页
+            window.location.href = 'index.html';
+        }
+
+        // 页面加载时显示订单摘要
+        displayOrderSummary();
+
+        // 添加以下函数来限制输入只能是数字
+        document.getElementById('payment-password').addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+</html>

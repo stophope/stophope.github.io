@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 水果购物网站</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            overflow: hidden;
+        }
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(45deg);
+            z-index: -1;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-bottom: 2px solid #ddd;
+            background-color: transparent;
+            transition: border-color 0.3s ease;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #fda085;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #fda085;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #f6d365;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .fruit-decoration {
+            position: absolute;
+            opacity: 0.2;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+        #apple { top: 10%; left: 10%; font-size: 40px; }
+        #banana { top: 70%; right: 15%; font-size: 50px; }
+        #orange { bottom: 20%; left: 20%; font-size: 45px; }
+        #strawberry { top: 15%; right: 20%; font-size: 35px; }
+        #watermelon { bottom: 15%; right: 25%; font-size: 55px; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 修改动画相关样式 */
+        .animation-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f6d365;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+        .fruit-animation {
+            font-size: 100px;
+            animation: fruitDance 2s ease-in-out;
+        }
+        @keyframes fruitDance {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+        .login-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="animation-container">
+        <div class="fruit-animation">🍎🍌🍊</div>
+    </div>
+
+    <div class="login-container">
+        <h2>欢迎登录</h2>
+        <form action="index.html" method="get">
+            <input type="text" name="username" placeholder="用户名" required>
+            <input type="password" name="password" placeholder="密码" required>
+            <button type="submit">登录</button>
+        </form>
+    </div>
+    <div class="fruit-decoration floating" id="apple">🍎</div>
+    <div class="fruit-decoration floating" id="banana">🍌</div>
+    <div class="fruit-decoration floating" id="orange">🍊</div>
+    <div class="fruit-decoration floating" id="strawberry">🍓</div>
+    <div class="fruit-decoration floating" id="watermelon">🍉</div>
+
+    <script>
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            input.addEventListener('blur', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        const fruits = document.querySelectorAll('.fruit-decoration');
+        fruits.forEach(fruit => {
+            fruit.style.animationDelay = `${Math.random() * 2}s`;
+            fruit.addEventListener('mouseover', () => {
+                fruit.style.transform = `scale(1.2) rotate(${Math.random() * 360}deg)`;
+                fruit.style.opacity = '0.5';
+            });
+            fruit.addEventListener('mouseout', () => {
+                fruit.style.transform = 'scale(1) rotate(0deg)';
+                fruit.style.opacity = '0.2';
+            });
+        });
+
+        // 修改页面加载后的动画逻辑
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.querySelector('.animation-container').style.opacity = '0';
+                setTimeout(function() {
+                    document.querySelector('.animation-container').style.display = 'none';
+                    document.querySelector('.login-container').style.display = 'block';
+                }, 500);
+            }, 2000);
+        });
+
+        // 修改表单提交事件
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault(); // 阻止表单默认提交行为
+            // 直接跳转到购物界面
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
